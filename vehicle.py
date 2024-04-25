@@ -17,7 +17,7 @@ class Vehicle:
     def prepare_next_move(self, grid, green_light):
         """Se intenta captar las siguientes VEHICLE_WIDTH grillas posteriores en linea vertical. Tanto si se tiene exito
         como si no, se pierde uno de los movimientos disponibles. Se considera que se termino de cruzar
-        cuando y equivale al largo de la senda peatonal."""
+        cuando Y == largo de la senda peatonal."""
         if green_light and self.y == 0:
             self.remaining_moves = 0
             return
