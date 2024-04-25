@@ -11,6 +11,7 @@ class Vehicle:
         self.speed = 6
         self.remaining_moves = self.speed
         self.symbol = 'v'
+        self.first_print = False
         self.requested_cells = []
 
     def prepare_next_move(self, grid, green_light):
@@ -34,24 +35,24 @@ class Vehicle:
             return
         if self.started_crossing:
             self.remaining_moves = 0
-            if self.remaining_body == VEHICLE_LENGTH:
-                print("Car starting to cross")
             if self.remaining_body == 0:
-                print("Car crossed completely")
                 self.done_crossing = True
+                if not self.first_print:
+                    print("Car crossed completely")
+                    self.first_print = True
                 return
             for x in range(self.x, self.x + VEHICLE_WIDTH):
                 grid.get_cell(x, self.y - self.remaining_body + 1).vacate(self)
             self.remaining_body -= 1
             return
-        cells_to_free = []
         for cell in self.requested_cells:
             if not cell.won(self):
-                for occupied_cell in cells_to_free:
-                    occupied_cell.vacate(self)
-                self.remaining_moves = 0
-                return
-            cells_to_free.append(cell)
+                self.requested_cells.remove(cell)
+        if len(self.requested_cells) < VEHICLE_WIDTH:
+            for cell in self.requested_cells:
+                cell.vacate(self)
+            self.requested_cells = []
+            return
         if self.y >= VEHICLE_LENGTH:
             for x in range(self.x, self.x + VEHICLE_WIDTH):
                 grid.get_cell(x, self.y - VEHICLE_LENGTH + 1).vacate(self)

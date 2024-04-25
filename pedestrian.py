@@ -8,6 +8,7 @@ class Pedestrian:
         self.y = initial_y
         value = generate_random_normalized_value(key1)
         self.done_crossing = False
+        self.first_print = False
         if value > 0.978:
             self.speed = 6
         elif 0.978 >= value > 0.93:
@@ -38,7 +39,9 @@ class Pedestrian:
             self.remaining_moves = 0
             old_cell = grid.get_cell(self.x, self.y)
             old_cell.vacate(self)
-            print(f"Done crossing at lane {self.y}")
+            if not self.first_print:
+                print(f"Done crossing at lane {self.y}")
+                self.first_print = True
             return
         new_cell = grid.get_cell(self.x+1, self.y)
         if not new_cell.won(self):

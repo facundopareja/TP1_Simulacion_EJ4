@@ -8,6 +8,8 @@ class Square:
         self.possible_occupants = []
 
     def attempt_to_occupy(self, occupant):
+        if self.occupant is not None:
+            return
         self.possible_occupants.append(occupant)
 
     def vacate(self, previous_occupant):
