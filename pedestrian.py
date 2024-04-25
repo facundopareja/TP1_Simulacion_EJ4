@@ -1,5 +1,5 @@
 from constants import CROSSWALK_WIDTH, key1
-from util import generate_random_normalized_value, show_grid_state
+from util import generate_random_normalized_value
 
 
 class Pedestrian:
@@ -23,6 +23,10 @@ class Pedestrian:
         self.symbol = 'p'
 
     def prepare_next_move(self, grid, green_light):
+        """Se intenta captar la grilla posterior en linea horizontal. Tanto si se tiene exito
+        como si no, se pierde uno de los movimientos disponibles. Se considera que se termino de cruzar
+        cuando X equivale al ancho de la senda peatonal. En caso de estar roja la luz, o no quedar movimientos
+        o haber terminado de cruzar, se vuelve sin pedir nuevas grillas."""
         if self.x == CROSSWALK_WIDTH:
             self.done_crossing = True
             return
@@ -35,6 +39,9 @@ class Pedestrian:
         self.remaining_moves -= 1
 
     def move(self, grid):
+        """Se realiza el movimiento. En caso de haber finalizado de cruzar, se libera la grilla actual y se imprime
+        un mensaje una unica vez. En caso de no haber finalizado, si se gano la nueva grilla, se libera la grilla actual
+        y se aumenta la coordenada X en 1."""
         if self.done_crossing:
             self.remaining_moves = 0
             old_cell = grid.get_cell(self.x, self.y)
