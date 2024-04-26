@@ -3,7 +3,7 @@ from grids import Grid
 from constants import (SIMULATION_TIME, CROSSWALK_WIDTH,
                        CROSSWALK_HEIGHT, key1,
                        PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRIVAL_RATE,
-                       key2, GREEN_LIGHT, RED_LIGHT, VEHICLE_WIDTH)
+                       key2, GREEN_LIGHT, RED_LIGHT, VEHICLE_WIDTH, DRAW_GRID)
 from pedestrian import Pedestrian
 from square import Square
 from util import generate_exponential_value, show_grid_state
@@ -87,15 +87,21 @@ def run_simulation():
     time = 0
     green_light = False
     while time < SIMULATION_TIME:
-        show_grid_state(grid)
+        if DRAW_GRID:
+            show_grid_state(grid)
         print(f"Pasaron {time} segundos")
         green_light = is_green_light_on(time, green_light)
+        elements_to_remove = []
         for arrival_time in pedestrian_arrival_times:
             if time < arrival_time < time + 1:
-                pedestrians.append(Pedestrian(0, pedestrian_starting_position))
+                pedestrians.append(Pedestrian(0, pedestrian_starting_position, green_light))
                 pedestrian_starting_position += 1
                 if pedestrian_starting_position > CROSSWALK_HEIGHT:
                     pedestrian_starting_position = 1
+                elements_to_remove.append(arrival_time)
+        for element in elements_to_remove:
+            pedestrian_arrival_times.remove(element)
+        elements_to_remove = []
         for arrival_time in vehicle_arrival_times:
             if time < arrival_time < time + 1:
                 pass
@@ -103,6 +109,9 @@ def run_simulation():
                 vehicle_starting_lane += (VEHICLE_WIDTH + 1)
                 if vehicle_starting_lane > CROSSWALK_WIDTH:
                     vehicle_starting_lane = 1
+                elements_to_remove.append(arrival_time)
+        for element in elements_to_remove:
+            vehicle_arrival_times.remove(element)
         move_all_entities(green_light)
         time += 1
     print(f"En total cruzaron {pedestrians_that_crossed} transeuntes y {vehicles_that_crossed} vehiculos")

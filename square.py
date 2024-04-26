@@ -26,6 +26,11 @@ class Square:
         self.occupant = self.possible_occupants[winner_index]
         self.possible_occupants = []
 
+    def compare_speeds(self, speed):
+        """Devuelve True si la velocidad recibida es mayor que la del ocupante actual.
+        False si no.."""
+        return speed > self.occupant.speed
+
     def occupied(self):
         return self.occupant is not None
 

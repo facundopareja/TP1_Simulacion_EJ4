@@ -41,7 +41,7 @@ class Vehicle:
             if self.remaining_body == 0:
                 self.done_crossing = True
                 if not self.first_print:
-                    print("Car crossed completely")
+                    print("Auto cruzo calle")
                     self.first_print = True
                 return
             for x in range(self.x, self.x + VEHICLE_WIDTH):
