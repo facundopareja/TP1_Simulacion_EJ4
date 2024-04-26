@@ -87,7 +87,7 @@ def run_simulation():
     time = 0
     green_light = False
     while time < SIMULATION_TIME:
-        #show_grid_state(grid)
+        show_grid_state(grid)
         print(f"Pasaron {time} segundos")
         green_light = is_green_light_on(time, green_light)
         for arrival_time in pedestrian_arrival_times:

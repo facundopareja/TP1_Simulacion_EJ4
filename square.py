@@ -8,15 +8,18 @@ class Square:
         self.possible_occupants = []
 
     def attempt_to_occupy(self, occupant):
+        """Agrega a occupant a la lista de posibles ocupantes, para decidir ganador mas tarde."""
         if self.occupant is not None:
             return
         self.possible_occupants.append(occupant)
 
     def vacate(self, previous_occupant):
+        """Elimina el ocupante de la celda si coincide con el parametro recibido."""
         if previous_occupant == self.occupant:
             self.occupant = None
 
     def resolve_conflict(self):
+        """Decide un ganador de todos los posibles."""
         if len(self.possible_occupants) == 0:
             return
         winner_index = int(len(self.possible_occupants) * generate_random_normalized_value(key1))
