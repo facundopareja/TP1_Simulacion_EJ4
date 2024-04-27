@@ -1,4 +1,4 @@
-from constants import CROSSWALK_HEIGHT, VEHICLE_WIDTH, VEHICLE_LENGTH
+from constants import CROSSWALK_HEIGHT, VEHICLE_WIDTH, VEHICLE_LENGTH, VEHICLE_SPEED
 
 
 class Vehicle:
@@ -7,24 +7,20 @@ class Vehicle:
         self.y = initial_y
         self.remaining_body = VEHICLE_LENGTH
         self.done_crossing = False
-        self.started_crossing = False
-        self.speed = 6
-        self.remaining_moves = self.speed
+        self.speed = VEHICLE_SPEED
         self.symbol = 'v'
         self.first_print = False
         self.requested_cells = []
 
     def prepare_next_move(self, grid, green_light):
-        """Se intenta captar las siguientes VEHICLE_WIDTH grillas posteriores en linea vertical. Tanto si se tiene exito
-        como si no, se pierde uno de los movimientos disponibles. Se considera que se termino de cruzar
-        cuando Y == largo de la senda peatonal."""
+        """Se intenta captar las siguientes VEHICLE_WIDTH grillas posteriores en linea vertical.
+        Se considera que se termino de cruzar cuando Y == largo de la senda peatonal."""
         if green_light and self.y == 0:
-            self.remaining_moves = 0
             return
         if self.y == CROSSWALK_HEIGHT:
-            self.started_crossing = True
+            self.done_crossing = True
             return
-        if self.remaining_moves == 0 or self.done_crossing:
+        if self.done_crossing:
             return
         for i in range(VEHICLE_WIDTH):
             cell = grid.get_cell(self.x + i, self.y + 1)

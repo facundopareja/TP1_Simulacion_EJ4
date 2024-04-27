@@ -44,27 +44,19 @@ def move_all_entities(green_light):
      la cantidad de movimientos que pueden realizar (= a velocidad inicial)."""
     global pedestrians_that_crossed, vehicles_that_crossed
     entities = pedestrians + vehicles
-    finished_entities = 0
-    while finished_entities < len(entities):
-        for entity in entities:
-            entity.prepare_next_move(grid, green_light)
-        for column in grid:
-            for cell in column:
-                cell.resolve_conflict()
-        finished_entities = 0
-        for entity in entities:
-            entity.move(grid)
-            if entity.done_moving():
-                finished_entities += 1
     for entity in entities:
-        entity.reset_movement()
+        entity.prepare_next_move(grid, green_light)
+    for column in grid:
+        for cell in column:
+            cell.resolve_conflict()
+    for entity in entities:
+        entity.move(grid)
     for pedestrian in pedestrians:
         if pedestrian.done_crossing:
             pedestrians_that_crossed += 1
             pedestrians.remove(pedestrian)
     for vehicle in vehicles:
         if vehicle.done_crossing:
-            vehicles_that_crossed += 1
             vehicles.remove(vehicle)
 
 
@@ -105,16 +97,16 @@ def run_simulation():
         for arrival_time in vehicle_arrival_times:
             if time < arrival_time < time + 1:
                 pass
-                vehicles.append(Vehicle(vehicle_starting_lane, 0))
-                vehicle_starting_lane += (VEHICLE_WIDTH + 1)
-                if vehicle_starting_lane > CROSSWALK_WIDTH:
-                    vehicle_starting_lane = 1
+                # vehicles.append(Vehicle(vehicle_starting_lane, 0))
+                # vehicle_starting_lane += (VEHICLE_WIDTH + 1)
+                # if vehicle_starting_lane > CROSSWALK_WIDTH:
+                #     vehicle_starting_lane = 1
                 elements_to_remove.append(arrival_time)
         for element in elements_to_remove:
             vehicle_arrival_times.remove(element)
         move_all_entities(green_light)
         time += 1
-    print(f"En total cruzaron {pedestrians_that_crossed} transeuntes y {vehicles_that_crossed} vehiculos")
+    print(f"En total cruzaron {pedestrians_that_crossed} peatones")
 
 
 run_simulation()

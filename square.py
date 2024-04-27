@@ -20,7 +20,7 @@ class Square:
 
     def resolve_conflict(self):
         """Decide un ganador de todos los posibles."""
-        if len(self.possible_occupants) == 0:
+        if len(self.possible_occupants) == 0 or self.occupied():
             return
         winner_index = int(len(self.possible_occupants) * generate_random_normalized_value(key1))
         self.occupant = self.possible_occupants[winner_index]

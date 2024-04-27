@@ -1,4 +1,4 @@
-from constants import CROSSWALK_WIDTH, key1, CROSSWALK_HEIGHT
+from constants import CROSSWALK_WIDTH, key1, CROSSWALK_HEIGHT, MAX_SPEED
 from util import generate_random_normalized_value
 
 
@@ -30,9 +30,9 @@ class Pedestrian:
             self.speed = 3
         elif value <= 0.273:
             self.speed = 2
-        self.remaining_moves = self.speed
         self.symbol = 'p'
         self.next_cell = None
+        self.next_x = None
         self.previous_light_was_green = previous_green_light
 
     def faster_than_pedestrian_behind_bottom_cell(self, grid):
@@ -98,10 +98,24 @@ class Pedestrian:
                 self.faster_than_pedestrian_behind_bottom_cell(grid) and
                 self.faster_than_pedestrian_behind_top_cell(grid))
 
-    def calculate_next_cell(self, grid):
-        self.next_cell = grid.get_cell(self.x + 1, self.y)
-        if not self.next_cell.occupied():
-            self.remaining_moves -= 1
+    def get_first_empty_cell_in_front(self, grid, light_changed):
+        furthest_x = 0
+        speed = self.speed
+        if light_changed:
+            speed = MAX_SPEED
+        while furthest_x < speed:
+            if (self.x + furthest_x == CROSSWALK_WIDTH or
+                    grid.get_cell(self.x+furthest_x+1, self.y).occupied()):
+                break
+            furthest_x += 1
+        self.next_x = self.x + furthest_x
+        self.next_cell = grid.get_cell(self.x + furthest_x, self.y)
+        if furthest_x == 0:
+            return False
+        return True
+
+    def calculate_next_cell(self, grid, light_changed):
+        if self.get_first_empty_cell_in_front(grid, light_changed):
             return
         elif self.move_either_way(grid):
             value = generate_random_normalized_value(key1)
@@ -117,7 +131,6 @@ class Pedestrian:
         elif self.move_bottom(grid):
             self.next_cell = grid.get_cell(self.x, self.y + 1)
             print("Cruce para abajo")
-        self.remaining_moves = 0
 
     def prepare_next_move(self, grid, green_light):
         """Se intenta captar la grilla posterior en linea horizontal. Tanto si se tiene exito
@@ -129,15 +142,12 @@ class Pedestrian:
         if self.x == CROSSWALK_WIDTH:
             self.done_crossing = True
             return
-        if self.remaining_moves == 0 or self.done_crossing:
+        if self.done_crossing:
             return
         if not green_light:
             if self.x == 0:
-                self.remaining_moves = 0
                 return
-            if light_changed:
-                self.remaining_moves += (6 - self.speed)
-        self.calculate_next_cell(grid)
+        self.calculate_next_cell(grid, light_changed)
         self.next_cell.attempt_to_occupy(self)
 
     def move(self, grid):
@@ -145,7 +155,6 @@ class Pedestrian:
         un mensaje una unica vez. En caso de no haber finalizado, si se gano la nueva grilla, se libera la grilla actual
         y se aumenta la coordenada X en 1."""
         if self.done_crossing:
-            self.remaining_moves = 0
             old_cell = grid.get_cell(self.x, self.y)
             old_cell.vacate(self)
             if not self.first_print:
@@ -155,18 +164,12 @@ class Pedestrian:
         if self.next_cell is None:
             return
         if not self.next_cell.won(self):
-            self.remaining_moves = 0
             return
-        old_cell = grid.get_cell(self.x, self.y)
-        old_cell.vacate(self)
+        grid.get_cell(self.x, self.y).vacate(self)
+        self.x = self.next_x
         self.next_cell = None
-        self.x += 1
+        self.next_x = None
 
-    def done_moving(self):
-        return self.remaining_moves == 0
-
-    def reset_movement(self):
-        self.remaining_moves = self.speed
 
     def get_symbol(self):
         return self.symbol
