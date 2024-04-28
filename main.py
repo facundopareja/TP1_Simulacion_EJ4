@@ -1,22 +1,14 @@
-from grids import Grid
-
-from constants import (SIMULATION_TIME, CROSSWALK_WIDTH,
+from constants import (SIMULATION_TIME,
                        CROSSWALK_HEIGHT, key1,
                        PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRIVAL_RATE,
-                       key2, GREEN_LIGHT, RED_LIGHT, VEHICLE_WIDTH, DRAW_GRID)
-from pedestrian import Pedestrian
-from square import Square
-from util import generate_exponential_value, show_grid_state
-from vehicle import Vehicle
+                       key2, GREEN_LIGHT, RED_LIGHT, DRAW_GRID)
+from grid_manager import GridManager
+from util import generate_exponential_value
 
 pedestrians = []
 vehicles = []
 
-grid = Grid(CROSSWALK_WIDTH, CROSSWALK_HEIGHT)
-
-for j in range(1, CROSSWALK_HEIGHT + 1):
-    for i in range(1, CROSSWALK_WIDTH + 1):
-        grid.update_cell(i, j, Square())
+grid_manager = GridManager()
 
 
 def get_arrival_times(key, lambda_value):
@@ -43,14 +35,12 @@ def move_all_entities(green_light):
      y movimiento (move). Finalmente se eliminan las entidades que ya terminaron de cruzar y se les resetea
      la cantidad de movimientos que pueden realizar (= a velocidad inicial)."""
     global pedestrians_that_crossed, vehicles_that_crossed
-    entities = pedestrians + vehicles
+    entities = pedestrians+vehicles
     for entity in entities:
-        entity.prepare_next_move(grid, green_light)
-    for column in grid:
-        for cell in column:
-            cell.resolve_conflict()
+        entity.prepare_next_move(grid_manager, green_light)
+    grid_manager.resolve_cell_conflicts()
     for entity in entities:
-        entity.move(grid)
+        entity.move()
     for pedestrian in pedestrians:
         if pedestrian.done_crossing:
             pedestrians_that_crossed += 1
@@ -73,37 +63,28 @@ def is_green_light_on(time, green_light):
     return False
 
 
+vehicles.append(grid_manager.create_new_vehicle())
+
+
 def run_simulation():
-    pedestrian_starting_position = 1
-    vehicle_starting_lane = 1
     time = 0
+    pedestrian_index = 0
+    vehicle_index = 0
     green_light = False
+    reverse = False
+    pedestrians.append(grid_manager.create_new_pedestrian(green_light, reverse))
     while time < SIMULATION_TIME:
         if DRAW_GRID:
-            show_grid_state(grid)
+            grid_manager.show_grid_state()
         print(f"Pasaron {time} segundos")
         green_light = is_green_light_on(time, green_light)
-        elements_to_remove = []
-        for arrival_time in pedestrian_arrival_times:
-            if time < arrival_time < time + 1:
-                pedestrians.append(Pedestrian(0, pedestrian_starting_position, green_light))
-                pedestrian_starting_position += 1
-                if pedestrian_starting_position > CROSSWALK_HEIGHT:
-                    pedestrian_starting_position = 1
-                elements_to_remove.append(arrival_time)
-        for element in elements_to_remove:
-            pedestrian_arrival_times.remove(element)
-        elements_to_remove = []
-        for arrival_time in vehicle_arrival_times:
-            if time < arrival_time < time + 1:
-                pass
-                # vehicles.append(Vehicle(vehicle_starting_lane, 0))
-                # vehicle_starting_lane += (VEHICLE_WIDTH + 1)
-                # if vehicle_starting_lane > CROSSWALK_WIDTH:
-                #     vehicle_starting_lane = 1
-                elements_to_remove.append(arrival_time)
-        for element in elements_to_remove:
-            vehicle_arrival_times.remove(element)
+        while time < pedestrian_arrival_times[pedestrian_index] < time + 1:
+            break
+            # pedestrians.append(grid_manager.create_new_pedestrian(green_light, reverse))
+            # pedestrian_index += 1
+        # while time < vehicle_arrival_times[vehicle_index] < time + 1:
+        #     vehicles.append(grid_manager.create_new_vehicle())
+        #     vehicle_index += 1
         move_all_entities(green_light)
         time += 1
     print(f"En total cruzaron {pedestrians_that_crossed} peatones")
