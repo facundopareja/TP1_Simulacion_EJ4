@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def first_scenario():
+def first_scenario(alternate_directions=True):
     GREEN_LIGHT = 25
     RED_LIGHT = 90 - GREEN_LIGHT
     HOUR = 3600
@@ -19,7 +19,7 @@ def first_scenario():
             pedestrian_times, vehicle_conflicts = run_simulation(GREEN_LIGHT,
                                                                  RED_LIGHT,
                                                                  PEDESTRIAN_ARRIVAL_RATE,
-                                                                 VEHICLE_ARRIVAL_RATE)
+                                                                 VEHICLE_ARRIVAL_RATE, alternate_directions)
             results.append(pedestrian_times)
     results = np.array(results)
     pedestrian_arrival_rates = np.array(pedestrian_arrival_rates)
@@ -35,4 +35,5 @@ def first_scenario():
         j += 1
 
 
-first_scenario()
+#first_scenario()
+#first_scenario(False)

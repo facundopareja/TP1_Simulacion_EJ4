@@ -58,7 +58,7 @@ def is_green_light_on(time, GREEN_LIGHT, RED_LIGHT):
     return False
 
 
-def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRIVAL_RATE):
+def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRIVAL_RATE, alternate_directions=True):
     pedestrian_arrival_times = get_arrival_times(key1, PEDESTRIAN_ARRIVAL_RATE)
     vehicle_arrival_times = get_arrival_times(key2, VEHICLE_ARRIVAL_RATE)
     global amount_pedestrians_waiting_right, amount_pedestrians_waiting_left
@@ -81,7 +81,8 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
             pedestrians_to_spawn += 1
             pedestrian_index += 1
         while pedestrians_to_spawn > 0:
-            reverse = not reverse
+            if alternate_directions:
+                reverse = not reverse
             if reverse:
                 if amount_pedestrians_waiting_left > MAX_PEDESTRIANS_WAITING:
                     break
