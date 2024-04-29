@@ -13,8 +13,6 @@ def second_scenario():
     results = []
     x = []
     y = []
-    plot_points = []
-    point = []
     for GREEN_LIGHT in green_lights:
         for VEHICLE_ARRIVAL_RATE in vehicle_arrival_rates:
             for PEDESTRIAN_ARRIVAL_RATE in pedestrian_arrival_rates:
