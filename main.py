@@ -46,7 +46,7 @@ def move_all_entities(green_light, pedestrians_that_crossed, pedestrians_crossed
             if vehicle.had_conflict():
                 vehicle_conflicts += 1
             vehicles.remove(vehicle)
-    return pedestrians_that_crossed, pedestrians_crossed_during_green_light
+    return pedestrians_that_crossed, pedestrians_crossed_during_green_light, vehicle_conflicts
 
 
 def is_green_light_on(time, GREEN_LIGHT, RED_LIGHT):
@@ -95,11 +95,12 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
             vehicle_index += 1
         amount_pedestrians_waiting_right = 0
         amount_pedestrians_waiting_left = 0
-        pedestrians_that_crossed, pedestrians_crossed_during_green_light = move_all_entities(green_light,
+        pedestrians_that_crossed, pedestrians_crossed_during_green_light, vehicle_conflicts = move_all_entities(green_light,
                                                                                              pedestrians_that_crossed,
                                                                                              pedestrians_crossed_during_green_light,
                                                                                              vehicles, pedestrians, grid_manager,
                                                                                              vehicle_conflicts)
         time += 1
-    print(f"En total cruzaron {pedestrians_that_crossed} peatones donde {pedestrians_crossed_during_green_light} cruzaron en verde")
+    print(f"En total cruzaron {pedestrians_that_crossed} peatones donde {pedestrians_crossed_during_green_light} cruzaron en verde con "
+          f"{vehicle_conflicts} conflictos")
     return pedestrians_crossed_during_green_light, vehicle_conflicts
