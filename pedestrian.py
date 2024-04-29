@@ -11,6 +11,9 @@ class Pedestrian:
         self.crossed_during_green_light = False
         self.speed = get_random_speed()
         self.symbol = 'p'
+        self.color = "red"
+        if reverse:
+            self.color = "blue"
 
     def crossed(self):
         return (not self.reverse and self.cell.right_edge() or
@@ -97,3 +100,6 @@ class Pedestrian:
 
     def same_direction(self, direction):
         return self.reverse == direction
+
+    def get_color(self):
+        return self.color

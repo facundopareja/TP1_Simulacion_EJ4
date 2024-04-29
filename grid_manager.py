@@ -1,5 +1,3 @@
-from random import randrange
-
 from constants import CROSSWALK_HEIGHT_LIMIT, CROSSWALK_WIDTH_LIMIT, \
     CROSSWALK_WIDTH_START, CROSSWALK_HEIGHT_START, VEHICLE_WIDTH, MAX_SPEED, VEHICLE_SPEED, VEHICLE_LENGTH, \
     CROSSWALK_HEIGHT, CROSSWALK_WIDTH, key1
@@ -8,6 +6,9 @@ from pedestrian import Pedestrian
 from cell import Cell
 from util import generate_random_normalized_value, get_random_y_position
 from vehicle import Vehicle
+from PIL import Image, ImageDraw
+import os
+import shutil
 
 
 class GridManager:
@@ -191,3 +192,31 @@ class GridManager:
                 print(self.grid.get(i, j).get_symbol(), end="")
             print("")
         print("")
+
+    def get_filling_color(self, i, j):
+        cell = self.grid.get(i + 2, j + 2)
+        return cell.get_occupant_color()
+
+    def store_image(self, time):
+        image = Image.new('RGB', (1050, 250))
+        rectangle_width = 25
+        rectangle_height = 25
+        draw_image = ImageDraw.Draw(image)
+        for i in range(42):
+            for j in range(10):
+                rectangle_x = i * 25
+                rectangle_y = j * 25
+                rectangle_shape = [
+                    (rectangle_x, rectangle_y),
+                    (rectangle_x + rectangle_width, rectangle_y + rectangle_height)]
+                fill = self.get_filling_color(i, j)
+                draw_image.rectangle(
+                    rectangle_shape,
+                    fill=fill
+                )
+        image.save(f'frames/{time}.png')
+
+    def make_animation(self):
+        os.system("ffmpeg -f image2 -i ./frames/%01d.png -vcodec mpeg4 -y "
+                  "./video.mp4")
+        shutil.rmtree('./frames')

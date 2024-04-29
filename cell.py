@@ -71,3 +71,8 @@ class Cell:
 
     def waiting(self):
         return self.waiting_cell
+
+    def get_occupant_color(self):
+        if self.occupant is None:
+            return "white"
+        return self.occupant.get_color()

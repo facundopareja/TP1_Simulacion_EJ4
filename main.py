@@ -1,4 +1,6 @@
-from constants import (SIMULATION_TIME, key1, key2,DRAW_GRID, MAX_PEDESTRIANS_WAITING)
+import os
+
+from constants import (SIMULATION_TIME, key1, key2, DRAW_GRID, MAX_PEDESTRIANS_WAITING, DRAW_ANIMATION)
 from grid_manager import GridManager
 from util import generate_exponential_value
 
@@ -24,7 +26,7 @@ def move_all_entities(green_light, pedestrians_that_crossed, pedestrians_crossed
      y movimiento (move). Finalmente se eliminan las entidades que ya terminaron de cruzar y se les resetea
      la cantidad de movimientos que pueden realizar (= a velocidad inicial)."""
     global amount_pedestrians_waiting_right, amount_pedestrians_waiting_left
-    entities = pedestrians+vehicles
+    entities = pedestrians + vehicles
     for entity in entities:
         entity.prepare_next_move(grid_manager, green_light)
     grid_manager.resolve_cell_conflicts()
@@ -72,10 +74,13 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
     pedestrians = []
     vehicles = []
     reverse = False
+    os.mkdir("./frames")
     grid_manager = GridManager()
     while time < SIMULATION_TIME:
         if DRAW_GRID:
             grid_manager.show_grid_state()
+        if DRAW_ANIMATION:
+            grid_manager.store_image(time)
         green_light = is_green_light_on(time, GREEN_LIGHT, RED_LIGHT)
         while time < pedestrian_arrival_times[pedestrian_index] < time + 1:
             pedestrians_to_spawn += 1
@@ -96,12 +101,18 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
             vehicle_index += 1
         amount_pedestrians_waiting_right = 0
         amount_pedestrians_waiting_left = 0
-        pedestrians_that_crossed, pedestrians_crossed_during_green_light, vehicle_conflicts = move_all_entities(green_light,
-                                                                                             pedestrians_that_crossed,
-                                                                                             pedestrians_crossed_during_green_light,
-                                                                                             vehicles, pedestrians, grid_manager,
-                                                                                             vehicle_conflicts)
+        pedestrians_that_crossed, pedestrians_crossed_during_green_light, vehicle_conflicts = move_all_entities(
+            green_light,
+            pedestrians_that_crossed,
+            pedestrians_crossed_during_green_light,
+            vehicles, pedestrians, grid_manager,
+            vehicle_conflicts)
         time += 1
-    print(f"En total cruzaron {pedestrians_that_crossed} peatones donde {pedestrians_crossed_during_green_light} cruzaron en verde con "
-          f"{vehicle_conflicts} conflictos")
+    print(
+        f"En total cruzaron {pedestrians_that_crossed} peatones donde {pedestrians_crossed_during_green_light} cruzaron en verde con "
+        f"{vehicle_conflicts} conflictos")
+    grid_manager.make_animation()
     return pedestrians_crossed_during_green_light, vehicle_conflicts
+
+
+run_simulation(25, 90 - 25, 0.83, 0.06)

@@ -14,6 +14,7 @@ class Vehicle:
         self.current_cells = set(initial_cells)
         self.future_cells = set()
         self.conflict = False
+        self.color = "yellow"
 
     def prepare_next_move(self, grid_manager, green_light):
         """Se intenta captar las siguientes VEHICLE_WIDTH grillas posteriores en linea vertical.
@@ -67,3 +68,6 @@ class Vehicle:
 
     def had_conflict(self):
         return self.conflict
+
+    def get_color(self):
+        return self.color
