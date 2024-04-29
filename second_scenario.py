@@ -8,15 +8,18 @@ def second_scenario():
     green_lights = [25, 30, 35, 40, 45, 50]
     CYCLE_TIME = 90
     HOUR = 3600
-    pedestrian_arrival_rates = [1000/HOUR, 2000/HOUR, 3000/HOUR, 4000/HOUR, 5000/HOUR, 6000/HOUR]
+    pedestrian_arrival_rates = [1000/HOUR, 2000/HOUR, 3000/HOUR, 4000/HOUR, 5000/HOUR, 6000/HOUR, 7000/HOUR, 8000/HOUR]
     vehicle_arrival_rates = [0.17, 0.28, 0.39]
     results = []
     x = []
     y = []
+    plot_points = []
+    point = []
     for GREEN_LIGHT in green_lights:
         for VEHICLE_ARRIVAL_RATE in vehicle_arrival_rates:
             for PEDESTRIAN_ARRIVAL_RATE in pedestrian_arrival_rates:
-                print(f"Para {VEHICLE_ARRIVAL_RATE} vehicle arrival rate and {PEDESTRIAN_ARRIVAL_RATE} pedestrian arrival "
+                print(f"Para {VEHICLE_ARRIVAL_RATE} vehicle arrival rate and {PEDESTRIAN_ARRIVAL_RATE} pedestrian "
+                      f"arrival "
                       f"rate with {GREEN_LIGHT}s green light timing")
                 pedestrian_times, vehicle_conflicts = run_simulation(GREEN_LIGHT,
                                                                      CYCLE_TIME - GREEN_LIGHT,
@@ -28,7 +31,6 @@ def second_scenario():
         results = np.array(results)
         ax = plt.axes(projection='3d')
         ax.invert_xaxis()
-        ax.invert_yaxis()
         ax.set_title(f"PA lambda x VA lambda x Number of conflicts for {GREEN_LIGHT}s GL")
         ax.set_xlabel('Pedestrian arrival lambda')
         ax.set_ylabel('Vehicle arrival lambda')

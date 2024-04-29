@@ -74,7 +74,8 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
     pedestrians = []
     vehicles = []
     reverse = False
-    os.mkdir("./frames")
+    if DRAW_ANIMATION:
+        os.makedirs("./frames", exist_ok=True)
     grid_manager = GridManager()
     while time < SIMULATION_TIME:
         if DRAW_GRID:
@@ -111,8 +112,9 @@ def run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRI
     print(
         f"En total cruzaron {pedestrians_that_crossed} peatones donde {pedestrians_crossed_during_green_light} cruzaron en verde con "
         f"{vehicle_conflicts} conflictos")
-    grid_manager.make_animation()
+    if DRAW_ANIMATION:
+        grid_manager.make_animation()
     return pedestrians_crossed_during_green_light, vehicle_conflicts
 
 
-run_simulation(25, 90 - 25, 0.83, 0.06)
+#run_simulation(25, 90 - 25, 0.83, 0.06)

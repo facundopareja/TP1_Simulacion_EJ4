@@ -35,5 +35,5 @@ def first_scenario(alternate_directions=True):
         j += 1
 
 
-#first_scenario()
+first_scenario()
 #first_scenario(False)
