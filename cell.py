@@ -13,10 +13,9 @@ class Cell:
 
     def attempt_to_occupy(self, occupant):
         if self.waiting_cell:
-            self.multiple_occupants.append(occupant)
             return
         """Agrega a occupant a la lista de posibles ocupantes, para decidir ganador mas tarde."""
-        if self.occupant is not None:
+        if self.occupant is not None or self.occupant == occupant:
             return
         self.possible_occupants.append(occupant)
 
@@ -35,16 +34,16 @@ class Cell:
         self.occupant = self.possible_occupants[winner_index]
         self.possible_occupants = []
 
-    def compare_speeds(self, speed):
+    def faster(self, speed):
         """Devuelve True si la velocidad recibida es mayor que la del ocupante actual.
         False si no."""
         return speed > self.occupant.speed
 
     def right_edge(self):
-        return self.x == CROSSWALK_WIDTH_LIMIT
+        return self.x == CROSSWALK_WIDTH_LIMIT-1
 
     def left_edge(self):
-        return self.x == CROSSWALK_WIDTH_START
+        return self.x == CROSSWALK_WIDTH_START-1
 
     def bottom(self):
         return self.y == CROSSWALK_HEIGHT_LIMIT

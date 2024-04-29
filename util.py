@@ -87,6 +87,6 @@ def cells_are_free(cells):
 
 def cells_are_waiting_cells(cells):
     for cell in cells:
-        if cell.waiting():
+        if not cell.waiting():
             return False
     return True

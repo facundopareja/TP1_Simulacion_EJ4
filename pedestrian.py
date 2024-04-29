@@ -12,16 +12,6 @@ class Pedestrian:
         self.speed = get_random_speed()
         self.symbol = 'p'
 
-    def faster_than_pedestrian_behind_cell(self, grid, x, y, speed):
-        if x == 1:
-            return True
-        for i in range(1, x):
-            if grid.get_cell(x - i, y).occupied():
-                if grid.get_cell(x - i, y).compare_speeds(speed):
-                    break
-                else:
-                    return False
-
     def crossed(self):
         return (not self.reverse and self.cell.right_edge() or
                 self.reverse and self.cell.left_edge())
@@ -34,23 +24,40 @@ class Pedestrian:
         self.next_cell = grid_manager.get_furthest_possible_cell(self.reverse, self.cell, self.speed, green_light)
         return self.cell == self.next_cell
 
+    def move_bottom(self, grid_manager):
+        return (grid_manager.behind_a_pedestrian(self.cell) and
+                grid_manager.no_pedestrian_under(self.cell) and
+                not grid_manager.no_pedestrian_above(self.cell) and
+                grid_manager.distance_to_nearest_bottom_neighbor_larger_speed(self.cell, self.speed)
+                and grid_manager.faster_than_pedestrian_behind_bottom_cell(self.cell, self.speed))
+
+    def move_top(self, grid_manager):
+        return (grid_manager.behind_a_pedestrian(self.cell) and
+                grid_manager.no_pedestrian_above(self.cell) and
+                not grid_manager.no_pedestrian_under(self.cell) and
+                grid_manager.distance_to_nearest_top_neighbor_larger_speed(self.cell, self.speed)
+                and grid_manager.faster_than_pedestrian_behind_top_cell(self.cell, self.speed))
+
+    def move_either_way(self, grid_manager):
+        return (grid_manager.behind_a_pedestrian(self.cell) and
+                grid_manager.no_pedestrian_under(self.cell) and grid_manager.no_pedestrian_above(self.cell) and
+                grid_manager.distance_to_nearest_bottom_neighbor_larger_speed(self.cell, self.speed) and
+                grid_manager.distance_to_nearest_top_neighbor_larger_speed(self.cell, self.speed) and
+                grid_manager.faster_than_pedestrian_behind_bottom_cell(self.cell, self.speed) and
+                grid_manager.faster_than_pedestrian_behind_top_cell(self.cell, self.speed))
+
     def calculate_next_cell(self, grid_manager, green_light):
         if self.get_first_empty_cell_in_front(grid_manager, green_light):
             return
-        # elif self.move_either_way(grid):
-        #     value = generate_random_normalized_value(key1)
-        #     if value >= 0.5:
-        #         print("Cruce para abajo")
-        #         self.next_cell = grid.get_cell(self.x, self.y + 1)
-        #     else:
-        #         print("Cruce para arriba")
-        #         self.next_cell = grid.get_cell(self.x, self.y - 1)
-        # elif self.move_top(grid):
-        #     self.next_cell = grid.get_cell(self.x, self.y - 1)
-        #     print("Cruce para arriba")
-        # elif self.move_bottom(grid):
-        #     self.next_cell = grid.get_cell(self.x, self.y + 1)
-        #     print("Cruce para abajo")
+        elif self.move_either_way(grid_manager):
+            grid_manager.bottom_or_top_cell(self)
+            return
+        elif self.move_top(grid_manager):
+            grid_manager.top_cell(self)
+            return
+        elif self.move_bottom(grid_manager):
+            grid_manager.bottom_cell(self)
+            return
 
     def prepare_next_move(self, grid_manager, green_light):
         """Se intenta captar la grilla posterior en linea horizontal. Tanto si se tiene exito
@@ -66,7 +73,6 @@ class Pedestrian:
             if self.waiting():
                 return
         self.calculate_next_cell(grid_manager, green_light)
-        #print(self.next_cell.get_coordinates())
         self.next_cell.attempt_to_occupy(self)
 
     def move(self):
