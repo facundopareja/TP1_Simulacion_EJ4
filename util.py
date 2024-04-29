@@ -2,7 +2,7 @@ import pyarrow as pa
 import warnings
 import numpy as np
 
-from constants import key1
+from constants import key1, LENGTH
 
 counter = pa.scalar(0, type=pa.uint64())
 
@@ -76,6 +76,12 @@ def get_random_speed():
     elif 0.793 >= value > 0.273:
         return 3
     return 2
+
+
+def get_random_y_position():
+    value = generate_random_normalized_value(key1)
+    value *= LENGTH
+    return int(value+1)
 
 
 def cells_are_free(cells):

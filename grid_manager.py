@@ -6,7 +6,7 @@ from constants import CROSSWALK_HEIGHT_LIMIT, CROSSWALK_WIDTH_LIMIT, \
 from grid import Grid
 from pedestrian import Pedestrian
 from cell import Cell
-from util import generate_random_normalized_value
+from util import generate_random_normalized_value, get_random_y_position
 from vehicle import Vehicle
 
 
@@ -23,11 +23,11 @@ class GridManager:
                     self.grid.set(i, j, Cell(i, j, False))
 
     def create_new_pedestrian(self, green_light, reverse):
-        x = CROSSWALK_WIDTH_START
+        x = CROSSWALK_WIDTH_START - 1
         if reverse:
             x = CROSSWALK_WIDTH_LIMIT
-        pedestrian_position = randrange(CROSSWALK_HEIGHT_START, CROSSWALK_HEIGHT_LIMIT)
-        cell = self.grid.get(1, pedestrian_position)
+        pedestrian_position = get_random_y_position()
+        cell = self.grid.get(x, pedestrian_position)
         return Pedestrian(green_light, reverse, cell)
 
     def get_next_empty_row(self, x, y):
@@ -79,14 +79,28 @@ class GridManager:
         x, y = cell.get_coordinates()
         if not green_light:
             speed = MAX_SPEED
-        for i in range(x + 1, x + speed + 1):
-            furthest_x = i
-            current_cell = self.grid.get(furthest_x, y)
-            if current_cell.right_edge():
-                break
-            if current_cell.occupied():
-                furthest_x -= 1
-                break
+        if not reverse:
+            for i in range(x + 1, x + speed + 1):
+                furthest_x = i
+                current_cell = self.grid.get(furthest_x, y)
+                if current_cell.right_edge():
+                    break
+                if current_cell.occupied():
+                    if not current_cell.same_direction(reverse):
+                        continue
+                    furthest_x -= 1
+                    break
+        else:
+            for i in range(x - 1, x - speed - 1, -1):
+                furthest_x = i
+                current_cell = self.grid.get(furthest_x, y)
+                if current_cell.left_edge():
+                    break
+                if current_cell.occupied():
+                    if not current_cell.same_direction(reverse):
+                        continue
+                    furthest_x += 1
+                    break
         return self.grid.get(furthest_x, y)
 
     def faster_than_pedestrian_behind_cell(self, x, y, speed):
@@ -121,11 +135,15 @@ class GridManager:
             return False
         return self.grid.get(x, y + 1).occupied()
 
-    def behind_a_pedestrian(self, cell):
+    def behind_a_pedestrian(self, cell, reverse):
         x, y = cell.get_coordinates()
-        if x == CROSSWALK_WIDTH:
+        if (not reverse and x == CROSSWALK_WIDTH or
+                reverse and x == CROSSWALK_WIDTH_START - 1):
             return False
-        return self.grid.get(x + 1, y).occupied()
+        x_in_front = x + 1
+        if reverse:
+            x_in_front = x - 1
+        return self.grid.get(x_in_front, y).occupied()
 
     def distance_to_nearest_top_neighbor_larger_speed(self, cell, speed):
         max_empty_cells = 0

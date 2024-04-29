@@ -8,7 +8,7 @@ class Pedestrian:
         self.next_cell = None
         self.done_crossing = False
         self.first_print = False
-        self.previous_light_was_green = previous_green_light
+        self.crossed_during_green_light = False
         self.speed = get_random_speed()
         self.symbol = 'p'
 
@@ -25,21 +25,21 @@ class Pedestrian:
         return self.cell == self.next_cell
 
     def move_bottom(self, grid_manager):
-        return (grid_manager.behind_a_pedestrian(self.cell) and
+        return (grid_manager.behind_a_pedestrian(self.cell, self.reverse) and
                 grid_manager.no_pedestrian_under(self.cell) and
                 not grid_manager.no_pedestrian_above(self.cell) and
                 grid_manager.distance_to_nearest_bottom_neighbor_larger_speed(self.cell, self.speed)
                 and grid_manager.faster_than_pedestrian_behind_bottom_cell(self.cell, self.speed))
 
     def move_top(self, grid_manager):
-        return (grid_manager.behind_a_pedestrian(self.cell) and
+        return (grid_manager.behind_a_pedestrian(self.cell, self.reverse) and
                 grid_manager.no_pedestrian_above(self.cell) and
                 not grid_manager.no_pedestrian_under(self.cell) and
                 grid_manager.distance_to_nearest_top_neighbor_larger_speed(self.cell, self.speed)
                 and grid_manager.faster_than_pedestrian_behind_top_cell(self.cell, self.speed))
 
     def move_either_way(self, grid_manager):
-        return (grid_manager.behind_a_pedestrian(self.cell) and
+        return (grid_manager.behind_a_pedestrian(self.cell, self.reverse) and
                 grid_manager.no_pedestrian_under(self.cell) and grid_manager.no_pedestrian_above(self.cell) and
                 grid_manager.distance_to_nearest_bottom_neighbor_larger_speed(self.cell, self.speed) and
                 grid_manager.distance_to_nearest_top_neighbor_larger_speed(self.cell, self.speed) and
@@ -75,15 +75,15 @@ class Pedestrian:
         self.calculate_next_cell(grid_manager, green_light)
         self.next_cell.attempt_to_occupy(self)
 
-    def move(self):
+    def move(self, green_light):
         """Se realiza el movimiento. En caso de haber finalizado de cruzar, se libera la grilla actual y se imprime
         un mensaje una unica vez. En caso de no haber finalizado, si se gano la nueva grilla, se libera la grilla actual
         y se aumenta la coordenada X en 1."""
         if self.done_crossing:
             self.cell.vacate(self)
             if not self.first_print:
-                x, y = self.cell.get_coordinates()
-                print(f"Peaton cruzo por linea {y - 1}")
+                if green_light:
+                    self.crossed_during_green_light = True
                 self.first_print = True
             return
         if self.next_cell is None or not self.next_cell.won(self):
@@ -95,5 +95,5 @@ class Pedestrian:
     def get_symbol(self):
         return self.symbol
 
-    def get_direction(self):
-        return self.reverse
+    def same_direction(self, direction):
+        return self.reverse == direction

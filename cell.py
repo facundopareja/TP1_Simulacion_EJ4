@@ -40,7 +40,7 @@ class Cell:
         return speed > self.occupant.speed
 
     def right_edge(self):
-        return self.x == CROSSWALK_WIDTH_LIMIT-1
+        return self.x == CROSSWALK_WIDTH_LIMIT
 
     def left_edge(self):
         return self.x == CROSSWALK_WIDTH_START-1
@@ -62,7 +62,7 @@ class Cell:
         return self.x, self.y
 
     def same_direction(self, direction):
-        return direction == self.occupant.get_direction()
+        return self.occupant.same_direction(direction)
 
     def get_symbol(self):
         if self.occupant is None:

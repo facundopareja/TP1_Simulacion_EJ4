@@ -13,13 +13,15 @@ class Vehicle:
         self.first_print = False
         self.current_cells = set(initial_cells)
         self.future_cells = set()
+        self.conflict = False
 
     def prepare_next_move(self, grid_manager, green_light):
         """Se intenta captar las siguientes VEHICLE_WIDTH grillas posteriores en linea vertical.
         Se considera que se termino de cruzar cuando Y == largo de la senda peatonal."""
         if green_light and cells_are_waiting_cells(self.current_cells):
             return
-        if self.y == CROSSWALK_HEIGHT_LIMIT:
+        if (self.y == CROSSWALK_HEIGHT_LIMIT or
+                not green_light and grid_manager.road_is_clear(self.x, self.y)):
             self.done_crossing = True
             return
         if self.done_crossing:
@@ -28,10 +30,9 @@ class Vehicle:
         for cell in self.future_cells:
             cell.attempt_to_occupy(self)
 
-    def move(self):
+    def move(self, green_light):
         if self.done_crossing:
             if not self.first_print:
-                print(f"Auto cruzo")
                 self.first_print = True
                 for cell in self.current_cells:
                     cell.vacate(self)
@@ -47,6 +48,7 @@ class Vehicle:
                 cells_to_free.append(requested_cell)
             else:
                 all_cells_acquired = False
+                self.conflict = True
         if not all_cells_acquired:
             for cell in cells_to_free:
                 cell.vacate(self)
@@ -59,3 +61,9 @@ class Vehicle:
 
     def get_symbol(self):
         return self.symbol
+
+    def same_direction(self, direction):
+        return True
+
+    def had_conflict(self):
+        return self.had_conflict()
