@@ -66,4 +66,4 @@ class Vehicle:
         return True
 
     def had_conflict(self):
-        return self.had_conflict()
+        return self.conflict

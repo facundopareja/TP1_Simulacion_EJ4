@@ -16,7 +16,11 @@ def first_scenario():
         for PEDESTRIAN_ARRIVAL_RATE in pedestrian_arrival_rates:
             print(f"For {VEHICLE_ARRIVAL_RATE} vehicle arrival rate and {PEDESTRIAN_ARRIVAL_RATE} pedestrian arrival "
                   f"rate:")
-            results.append(run_simulation(GREEN_LIGHT, RED_LIGHT, PEDESTRIAN_ARRIVAL_RATE, VEHICLE_ARRIVAL_RATE))
+            pedestrian_times, vehicle_conflicts = run_simulation(GREEN_LIGHT,
+                                                                 RED_LIGHT,
+                                                                 PEDESTRIAN_ARRIVAL_RATE,
+                                                                 VEHICLE_ARRIVAL_RATE)
+            results.append(pedestrian_times)
     results = np.array(results)
     pedestrian_arrival_rates = np.array(pedestrian_arrival_rates)
     i = 0
