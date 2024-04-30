@@ -2,7 +2,7 @@ import pyarrow as pa
 import warnings
 import numpy as np
 
-from constants import CROSSWALK_HEIGHT, CROSSWALK_WIDTH
+from constants import key1, LENGTH
 
 counter = pa.scalar(0, type=pa.uint64())
 
@@ -65,10 +65,34 @@ def generate_exponential_value(key, lambda_value):
     return (-1 / lambda_value) * np.log(1 - random_value)
 
 
-def show_grid_state(grid):
-    print("")
-    for j in range(1, CROSSWALK_HEIGHT + 1):
-        for i in range(1, CROSSWALK_WIDTH + 1):
-            print(grid.get_cell(i, j).get_symbol(), end="")
-        print("")
-    print("")
+def get_random_speed():
+    value = generate_random_normalized_value(key1)
+    if value > 0.978:
+        return 6
+    elif 0.978 >= value > 0.93:
+        return 5
+    elif 0.93 >= value > 0.793:
+        return 4
+    elif 0.793 >= value > 0.273:
+        return 3
+    return 2
+
+
+def get_random_y_position():
+    value = generate_random_normalized_value(key1)
+    value *= LENGTH
+    return int(value+1)
+
+
+def cells_are_free(cells):
+    for cell in cells:
+        if cell.occupied():
+            return False
+    return True
+
+
+def cells_are_waiting_cells(cells):
+    for cell in cells:
+        if not cell.waiting():
+            return False
+    return True
